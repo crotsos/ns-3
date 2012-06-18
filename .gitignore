@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 \.rej$
 \.orig$
 \.o$
@@ -36,3 +37,17 @@ massif.*
 \.diff$
 \.tr$
 \#[^\#/]+\#$
+=======
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+>>>>>>> 3327ec2ffc5f67a4ed2966f442c80845f2e11768
