@@ -39,13 +39,14 @@
 #include "ns3/network-module.h"
 #include "ns3/csma-module.h"
 #include "ns3/internet-module.h"
+#include "ns3/mirage-module.h"
 #include "ns3/applications-module.h"
 //#include "ns3/openflow-module.h"
 #include "ns3/log.h"
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("OpenFlowCsmaSwitchExample");
+NS_LOG_COMPONENT_DEFINE ("MirageExample");
 
 bool verbose = false;
 bool use_drop = false;
@@ -95,8 +96,9 @@ main (int argc, char *argv[])
 
   if (verbose)
     {
-      LogComponentEnable ("OpenFlowCsmaSwitchExample", LOG_LEVEL_INFO);
-
+      LogComponentEnable ("MirageExample", LOG_LEVEL_INFO);
+      LogComponentEnable("PacketSink", LOG_LEVEL_INFO);
+      LogComponentEnable("MirageNetDevice", LOG_LEVEL_INFO);
     }
 
   //
@@ -106,6 +108,12 @@ main (int argc, char *argv[])
   NodeContainer terminals;
   terminals.Create (2);
 
+  /*
+   * Create a node to run the mirage switch
+   */
+  NodeContainer mirageSwitch;
+  mirageSwitch.Create (1);
+
   NS_LOG_INFO ("Build Topology");
   CsmaHelper csma;
   csma.SetChannelAttribute ("DataRate", DataRateValue (5000000));
@@ -114,10 +122,17 @@ main (int argc, char *argv[])
   // Create the csma links between switches
   NetDeviceContainer terminalDevices;
   NetDeviceContainer switchDevices;
-  NetDeviceContainer link = csma.Install (NodeContainer 
-      (terminals.Get (0), terminals.Get(1)));
-  terminalDevices.Add (link.Get (0)); 
-  terminalDevices.Add (link.Get (1)); 
+
+  for(int i = 0; i < 2; i++) {
+    NetDeviceContainer link = csma.Install (NodeContainer 
+        (terminals.Get (i), mirageSwitch));
+    terminalDevices.Add (link.Get (0)); 
+    switchDevices.Add (link.Get (1)); 
+  }
+
+  // Configure mirage node
+  MirageHelper swtch;
+  swtch.Install(mirageSwitch.Get(0), switchDevices);
 
   // Add internet stack to the terminals
   InternetStackHelper internet;
